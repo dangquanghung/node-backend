@@ -8,20 +8,22 @@ const COLLECTION_NAME = "Apikeys";
 
 var apiKeySchema = new Schema(
   {
-    key: { // cho apiKey
+    key: {
+      // cho apiKey
       type: String,
       required: true,
       unique: true,
     },
-    status: { // work or not 
+    status: {
+      // work or not
       type: Boolean,
       default: true,
     },
     permissions: {
       type: [String],
       required: true,
-      enum: ['0000', '1111', '2222'],
-    }
+      enum: ["0000", "1111", "2222"],
+    },
   },
   {
     timestamps: true,
