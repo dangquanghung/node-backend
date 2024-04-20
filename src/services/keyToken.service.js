@@ -10,7 +10,7 @@ class KeyTokenService {
       const tokens = await keytokenModel.create({
         user: userId,
         publicKey,
-        privateKey
+        privateKey,
       });
 
       return tokens ? tokens.publicKey : null;
