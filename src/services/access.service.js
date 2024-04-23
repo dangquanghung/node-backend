@@ -19,7 +19,7 @@ class AccessService {
   static signUp = async ({ name, email, password }) => {
     const holderShop = await shopModel.findOne({ email }).lean();
     if (holderShop) {
-      throw new BadRequestError('Error: Shop already registered')
+      throw new BadRequestError("Error: Shop already registered");
     }
 
     const passwordHash = await bycrypt.hash(password, 10);

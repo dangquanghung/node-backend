@@ -26,19 +26,19 @@ app.use("", require("./routes"));
 Note :  - middleware have 3 params
         - ERROR hanlder have 4 params, EX: app.use((err, req, res, next) => { ... }
 */
-app.use((req, res, next) => { 
-    const error = new Error('Not Found')
-    error.status = 404
-    next(error)
-})
+app.use((req, res, next) => {
+  const error = new Error("Not Found");
+  error.status = 404;
+  next(error);
+});
 
-app.use((error ,req, res, next) => { 
-    const statusCode = error.status || 500
-    return res.status(statusCode).json({
-        status: 'error',
-        code: statusCode,
-        message: error.message || 'Internal Server Error'
-    })
-})
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500;
+  return res.status(statusCode).json({
+    status: "error",
+    code: statusCode,
+    message: error.message || "Internal Server Error",
+  });
+});
 
 module.exports = app;
