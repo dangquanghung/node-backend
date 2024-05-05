@@ -9,17 +9,17 @@ const HEADER = {
 };
 
 const apiKey = async (req, res, next) => {
-    const key = req.headers[HEADER.API_KEY]?.toString();
-    if (!key) {
-      throw new BadRequestError("Error: Forbidden Error")
-    }
-    // check objKey
-    const objKey = await findById(key);
-    if (!objKey) {
-      throw new BadRequestError("Error: Forbidden Error")
-    }
-    req.objKey = objKey;
-    return next();
+  const key = req.headers[HEADER.API_KEY]?.toString();
+  if (!key) {
+    throw new BadRequestError("Error: Forbidden Error")
+  }
+  // check objKey
+  const objKey = await findById(key);
+  if (!objKey) {
+    throw new BadRequestError("Error: Forbidden Error")
+  }
+  req.objKey = objKey;
+  return next();
 };
 
 const permission = (permission) => {
