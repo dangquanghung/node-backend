@@ -8,7 +8,6 @@ const { createTokenPair, verifyJWT } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
 const { BadRequestError, ForbiddenError, AuthFailureError } = require("../core/error.response");
 const { findByEmail } = require("./shop.service");
-const keytokenModel = require("../models/keytoken.model");
 
 const RoleShop = {
   SHOP: "SHOP",
