@@ -29,11 +29,12 @@ class AccessService {
   static handlerRefreshToken = async ({ keyStore, user, refreshToken }) => {
     const { userId, email } = user;
     if (keyStore.refreshTokensUsed.includes(refreshToken)) {
-      await KeyTokenService.deleteKeyById(userId)
-      throw new ForbiddenError('Something wrong happend !! Pls relogin')
+      await KeyTokenService.deleteKeyById(userId);
+      throw new ForbiddenError("Something wrong happend !! Pls relogin");
     }
 
-    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError("Shop not registered");
+    if (keyStore.refreshToken !== refreshToken)
+      throw new AuthFailureError("Shop not registered");
 
     const foundShop = await findByEmail({ email });
     if (!foundShop) throw new AuthFailureError("Shop not registerd");
@@ -44,7 +45,6 @@ class AccessService {
       keyStore.publicKey,
       keyStore.privateKey,
     );
-
 
     // await keytokenModel.updateOne(
     //   { _id: holderToken._id},
