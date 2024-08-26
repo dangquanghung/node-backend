@@ -26,53 +26,25 @@ class AccessService {
    *  check this token used?
    */
 
-  static handlerRefreshToken = async (refreshToken) => {
-    // check if this token was used
-    const foundToken =
-      await KeyTokenService.findByRefreshTokenUsed(refreshToken);
-    // if yes, then
-    if (foundToken) {
-      // decode xem who is this?
-      const { userId, email } = await verifyJWT(
-        refreshToken,
-        foundToken.privateKey,
-      );
-      console.log({ userId, email });
-      // xoa
-
-      await KeyTokenService.deleteKeyById(userId);
-      throw new ForbiddenError("Something wrong happened! Pls relogin!");
+  static handlerRefreshToken = async ({ keyStore, user, refreshToken }) => {
+    const { userId, email } = user;
+    if (keyStore.refreshTokensUsed.includes(refreshToken)) {
+      await KeyTokenService.deleteKeyById(userId)
+      throw new ForbiddenError('Something wrong happend !! Pls relogin')
     }
 
-    const holderToken = await KeyTokenService.findByRefreshToken(refreshToken);
-    console.log("holderToken", holderToken);
-    if (!holderToken) throw new AuthFailureError("Shop not registered");
+    if (keyStore.refreshToken !== refreshToken) throw new AuthFailureError("Shop not registered");
 
-    // verify SToken
-    const { userId, email } = await verifyJWT(
-      refreshToken,
-      holderToken.privateKey,
-    );
-    console.log("[2]--", { userId, email });
-    // check userId
     const foundShop = await findByEmail({ email });
     if (!foundShop) throw new AuthFailureError("Shop not registerd");
 
-    // create 1 cap mới
+    // create a new couple
     const tokens = await createTokenPair(
       { userId, email },
-      holderToken.publicKey,
-      holderToken.privateKey,
+      keyStore.publicKey,
+      keyStore.privateKey,
     );
-    // update token
-    // await holderToken.update({
-    //   $set: {
-    //     refreshToken: tokens.refreshToken
-    //   },
-    //   $addToSet: {
-    //     refreshTokensUsed: refreshToken // duoc su dung de lay token moi roi
-    //   }
-    // })
+
 
     // await keytokenModel.updateOne(
     //   { _id: holderToken._id},
@@ -82,13 +54,13 @@ class AccessService {
     //   }
     // );
     await KeyTokenService.updateNewRefreshToken(
-      holderToken._id,
+      keyStore._id,
       tokens.refreshToken,
       refreshToken,
     );
 
     return {
-      user: { userId, email },
+      user,
       tokens,
     };
   };
