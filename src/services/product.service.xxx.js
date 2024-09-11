@@ -6,6 +6,7 @@ const {
   electronic,
   furniture,
 } = require("../models/product.model");
+const { findAllDraftForShop, publishProductByShop, findAllPublishForShop } = require('../models/repository/product.repo')
 
 // define Factory class to create product
 class ProductFactory {
@@ -25,6 +26,26 @@ class ProductFactory {
 
     return new productClass(payload).createProduct();
   }
+
+
+  /// PUT ///
+  static async publishProductByShop({ product_shop, product_id }) {
+    return await publishProductByShop({ product_shop, product_id })
+  }
+  /// END PUT ///
+
+  /// QUERY ///
+  static async findAllDraftForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = { product_shop, isDraft: true }
+    return await findAllDraftForShop({ query, limit, skip })
+  }
+
+
+  static async findAllPublishForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = { product_shop, isPublish: true }
+    return await findAllPublishForShop({ query, limit, skip })
+  }
+  /// END QUERY ///
 }
 
 // define base product class
@@ -59,7 +80,10 @@ class Product {
 // define sub-class for different product types Clothing
 class Clothing extends Product {
   async createProduct() {
-    const newClothing = await clothing.create(this.product_attributes);
+    const newClothing = await clothing.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop
+    });
     if (!newClothing) throw BadRequestError(" create new Clothing error");
 
     const newProduct = await super.createProduct();
