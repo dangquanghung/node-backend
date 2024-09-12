@@ -6,7 +6,7 @@ const {
   electronic,
   furniture,
 } = require("../models/product.model");
-const { findAllDraftForShop, publishProductByShop, findAllPublishForShop } = require('../models/repository/product.repo')
+const { findAllDraftForShop, publishProductByShop, findAllPublishForShop, unPublishProductByShop, searchProductByUser} = require('../models/repository/product.repo')
 
 // define Factory class to create product
 class ProductFactory {
@@ -32,12 +32,20 @@ class ProductFactory {
   static async publishProductByShop({ product_shop, product_id }) {
     return await publishProductByShop({ product_shop, product_id })
   }
+
+  static async unPublishProductByShop({ product_shop, product_id }) {
+    return await unPublishProductByShop({ product_shop, product_id })
+  }
   /// END PUT ///
 
   /// QUERY ///
   static async findAllDraftForShop({ product_shop, limit = 50, skip = 0 }) {
     const query = { product_shop, isDraft: true }
     return await findAllDraftForShop({ query, limit, skip })
+  }
+
+  static async searchProducts({ keySearch }) {
+    return await searchProductByUser({ keySearch })
   }
 
 

@@ -14,10 +14,20 @@ class ProductController {
     }).send(res);
   };
 
-  publishProductByShop = async(req, res, next) => {
+  publishProductByShop = async (req, res, next) => {
     new SuccessResponse({
       message: 'Create new Product success!',
       metadata: await ProductService.publishProductByShop({
+        product_id: req.params.id,
+        product_shop: req.user.userId
+      })
+    }).send(res)
+  }
+
+  unPublishProductByShop = async (req, res, next) => {
+    new SuccessResponse({
+      message: 'Unpublish Product success!',
+      metadata: await ProductService.unPublishProductByShop({
         product_id: req.params.id,
         product_shop: req.user.userId
       })
@@ -47,6 +57,13 @@ class ProductController {
       metadata: await ProductService.findAllPublishForShop({
         product_shop: req.user.userId
       })
+    }).send(res)
+  }
+
+  getListSearchProduct = async (req, res, next) => {
+    new SuccessResponse({
+      message: "Get list publish products success!",
+      metadata: await ProductService.searchProducts(req.params)
     }).send(res)
   }
   // END QUERY //
