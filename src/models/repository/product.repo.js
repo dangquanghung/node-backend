@@ -1,115 +1,125 @@
-'use strict'
+"use strict";
 
-const { product, electronic, clothing, furniture } = require('../../models/product.model')
-const { Types } = require("mongoose")
-const { getSelectData, unGetSelectData } = require('../../utils')
+const {
+  product,
+  electronic,
+  clothing,
+  furniture,
+} = require("../../models/product.model");
+const { Types } = require("mongoose");
+const { getSelectData, unGetSelectData } = require("../../utils");
 
-const localeConfig = { locale: "simple" }
+const localeConfig = { locale: "simple" };
 
 const findAllDraftForShop = async ({ query, limit, skip }) => {
-    return await queryProduct({ query, limit, skip })
-}
+  return await queryProduct({ query, limit, skip });
+};
 
 const findAllPublishForShop = async ({ query, limit, skip }) => {
-    return await queryProduct({ query, limit, skip })
-}
+  return await queryProduct({ query, limit, skip });
+};
 
 const searchProductByUser = async ({ keySearch }) => {
-    const regexSearch = new RegExp(keySearch)
-    const results = await product.find(
-        {
-
-            isPublish: true,
-            $text: { $search: keySearch }
-        },
-        { score: { $meta: 'textScore' } }
+  const regexSearch = new RegExp(keySearch);
+  const results = await product
+    .find(
+      {
+        isPublish: true,
+        $text: { $search: keySearch },
+      },
+      { score: { $meta: "textScore" } },
     )
-        .sort({ score: { $meta: 'textScore' } })
-        .collation(localeConfig)
-        .lean();
+    .sort({ score: { $meta: "textScore" } })
+    .collation(localeConfig)
+    .lean();
 
-    return results;
-}
+  return results;
+};
 
 const publishProductByShop = async ({ product_shop, product_id }) => {
+  const foundShop = await product
+    .findOne({
+      product_shop: new Types.ObjectId(product_shop),
+      _id: new Types.ObjectId(product_id),
+    })
+    .collation(localeConfig);
 
+  if (!foundShop) return null;
 
-    const foundShop = await product.findOne({
-        product_shop: new Types.ObjectId(product_shop),
-        _id: new Types.ObjectId(product_id)
-    }).collation(localeConfig)
+  const { modifiedCount } = await product.updateOne(
+    { _id: foundShop._id },
+    {
+      $set: {
+        isDraft: false,
+        isPublish: true,
+      },
+    },
+    { collation: localeConfig }, // Add collation here if needed
+  );
 
-    if (!foundShop) return null
-
-    const { modifiedCount } = await product.updateOne(
-        { _id: foundShop._id },
-        {
-            $set: {
-                isDraft: false,
-                isPublish: true
-            }
-        },
-        { collation: localeConfig } // Add collation here if needed
-    )
-
-    return modifiedCount
-}
+  return modifiedCount;
+};
 
 const unPublishProductByShop = async ({ product_shop, product_id }) => {
-    const foundShop = await product.findOne({
-        product_shop: new Types.ObjectId(product_shop),
-        _id: new Types.ObjectId(product_id)
-    }).collation(localeConfig)
+  const foundShop = await product
+    .findOne({
+      product_shop: new Types.ObjectId(product_shop),
+      _id: new Types.ObjectId(product_id),
+    })
+    .collation(localeConfig);
 
-    if (!foundShop) return null
+  if (!foundShop) return null;
 
-    const { modifiedCount } = await product.updateOne(
-        { _id: foundShop._id },
-        { $set: { isDraft: true, isPublish: false } },
-        { collation: localeConfig }
-    )
+  const { modifiedCount } = await product.updateOne(
+    { _id: foundShop._id },
+    { $set: { isDraft: true, isPublish: false } },
+    { collation: localeConfig },
+  );
 
-    return modifiedCount
-}
-
+  return modifiedCount;
+};
 
 const findAllProducts = async ({ limit, sort, page, filter, select }) => {
-    const skip = (page - 1) * limit;
-    const sortBy = sort === 'ctime' ? { _id: -1 } : { _id: 1 }
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
-    const products = await product.find(filter)
-        .collation(localeConfig)
-        .sort(sortBy)
-        .skip(skip)
-        .limit(limit)
-        .select(getSelectData(select))
-        .lean()
+  const products = await product
+    .find(filter)
+    .collation(localeConfig)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(getSelectData(select))
+    .lean();
 
-    return products
-}
+  return products;
+};
 
 const findProduct = async ({ product_id, unSelect }) => {
-    return await product.findById(product_id).collation(localeConfig).select(unGetSelectData(unSelect)).lean()
-
-}
-
+  return await product
+    .findById(product_id)
+    .collation(localeConfig)
+    .select(unGetSelectData(unSelect))
+    .lean();
+};
 
 const queryProduct = async ({ query, limit, skip }) => {
-    return await product.find(query)
-        .collation(localeConfig)
-        .populate('product_shop', 'name email _id')
-        .sort({ updateAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .lean()
-}
+  return await product
+    .find(query)
+    .collation(localeConfig)
+    .populate("product_shop", "name email _id")
+    .sort({ updateAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .lean();
+};
 
 module.exports = {
-    findAllDraftForShop,
-    publishProductByShop,
-    findAllPublishForShop,
-    unPublishProductByShop,
-    searchProductByUser,
-    findAllProducts,
-    findProduct
-}
+  findAllDraftForShop,
+  publishProductByShop,
+  findAllPublishForShop,
+  unPublishProductByShop,
+  searchProductByUser,
+  findAllProducts,
+  findProduct,
+};

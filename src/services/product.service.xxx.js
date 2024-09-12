@@ -6,14 +6,15 @@ const {
   electronic,
   furniture,
 } = require("../models/product.model");
-const { findAllDraftForShop,
+const {
+  findAllDraftForShop,
   publishProductByShop,
   findAllPublishForShop,
   unPublishProductByShop,
   searchProductByUser,
   findAllProducts,
-  findProduct
-} = require('../models/repository/product.repo')
+  findProduct,
+} = require("../models/repository/product.repo");
 
 // define Factory class to create product
 class ProductFactory {
@@ -41,41 +42,51 @@ class ProductFactory {
     return new productClass(payload).createProduct();
   }
 
-
   /// PUT ///
   static async publishProductByShop({ product_shop, product_id }) {
-    return await publishProductByShop({ product_shop, product_id })
+    return await publishProductByShop({ product_shop, product_id });
   }
 
   static async unPublishProductByShop({ product_shop, product_id }) {
-    return await unPublishProductByShop({ product_shop, product_id })
+    return await unPublishProductByShop({ product_shop, product_id });
   }
   /// END PUT ///
 
   /// QUERY ///
   static async findAllDraftForShop({ product_shop, limit = 50, skip = 0 }) {
-    const query = { product_shop, isDraft: true }
-    return await findAllDraftForShop({ query, limit, skip })
+    const query = { product_shop, isDraft: true };
+    return await findAllDraftForShop({ query, limit, skip });
   }
-
 
   static async findAllPublishForShop({ product_shop, limit = 50, skip = 0 }) {
-    const query = { product_shop, isPublish: true }
-    return await findAllPublishForShop({ query, limit, skip })
+    const query = { product_shop, isPublish: true };
+    return await findAllPublishForShop({ query, limit, skip });
   }
-
-
 
   static async searchProducts({ keySearch }) {
-    return await searchProductByUser({ keySearch })
+    return await searchProductByUser({ keySearch });
   }
 
-  static async findAllProducts({ limit = 50, sort = 'ctime', page = 1, filter = { isPublish: true } }) {
-    return await findAllProducts({ limit, sort, page, filter, select: ['product_name', 'product_price', 'product_thumb'] })
+  static async findAllProducts({
+    limit = 50,
+    sort = "ctime",
+    page = 1,
+    filter = { isPublish: true },
+  }) {
+    return await findAllProducts({
+      limit,
+      sort,
+      page,
+      filter,
+      select: ["product_name", "product_price", "product_thumb"],
+    });
   }
 
   static async findProduct({ product_id }) {
-    return await findProduct({ product_id, unSelect: ['__v', 'product_variations' ]})
+    return await findProduct({
+      product_id,
+      unSelect: ["__v", "product_variations"],
+    });
   }
   /// END QUERY ///
 }
@@ -114,7 +125,7 @@ class Clothing extends Product {
   async createProduct() {
     const newClothing = await clothing.create({
       ...this.product_attributes,
-      product_shop: this.product_shop
+      product_shop: this.product_shop,
     });
     if (!newClothing) throw BadRequestError(" create new Clothing error");
 
