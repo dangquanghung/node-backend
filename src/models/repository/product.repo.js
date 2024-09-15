@@ -107,14 +107,14 @@ const updateProductById = async ({
   productId,
   bodyUpdate,
   model,
-  isNew = true
+  isNew = true,
 }) => {
-  return await model.findByIdAndUpdate(productId, bodyUpdate, {
-    new: isNew
-  })
-    .collation(localeConfig)
-
-}
+  return await model
+    .findByIdAndUpdate(productId, bodyUpdate, {
+      new: isNew,
+    })
+    .collation(localeConfig);
+};
 
 const queryProduct = async ({ query, limit, skip }) => {
   return await product
@@ -135,5 +135,5 @@ module.exports = {
   searchProductByUser,
   findAllProducts,
   findProduct,
-  updateProductById
+  updateProductById,
 };
