@@ -1,8 +1,6 @@
 "use strict";
 
-const {
-  product,
-} = require("../../models/product.model");
+const { product } = require("../../models/product.model");
 const { Types } = require("mongoose");
 const { getSelectData, unGetSelectData } = require("../../utils");
 

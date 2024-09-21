@@ -126,7 +126,7 @@ class Product {
         productId: newProduct._id,
         shopId: this.product_shop,
         stock: this.product_quantity,
-      })
+      });
     }
     return newProduct;
   }
