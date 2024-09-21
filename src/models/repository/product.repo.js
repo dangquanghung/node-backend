@@ -2,9 +2,6 @@
 
 const {
   product,
-  electronic,
-  clothing,
-  furniture,
 } = require("../../models/product.model");
 const { Types } = require("mongoose");
 const { getSelectData, unGetSelectData } = require("../../utils");
