@@ -1,11 +1,11 @@
 "use strict";
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
-const  discount  = require("../models/discount.model");
+const discount = require("../models/discount.model");
 const { convertToObjectIdMongodb } = require("../utils");
 const { findAllProducts } = require("../models/repository/product.repo");
 const { product } = require("../models/product.model");
-const { findAllDiscountCodesUnSelect } = require("../models/repository/discount.repo");
+const { findAllDiscountCodesUnSelect, checkDiscountExists } = require("../models/repository/discount.repo");
 const { filter } = require("lodash");
 /*
     Discount Services
@@ -126,7 +126,7 @@ class DiscountService {
     /*
     get all discount code by shopId
     */
-    static async getAllDiscountCodesByShop({limit, page, shopId}){
+    static async getAllDiscountCodesByShop({ limit, page, shopId }) {
         const discounts = await findAllDiscountCodesUnSelect({
             limmit: +limit,
             page: +page,
@@ -139,6 +139,83 @@ class DiscountService {
         })
 
         return discounts
-    } 
+    }
 
+    /*
+    Aplly Discount Code
+    products = [
+            {
+                productId,
+                shopId,
+                quantity,
+                name, 
+                price
+            },
+                    
+            {
+                productId,
+                shopId,
+                quantity,
+                name, 
+                price
+            },                    
+        ]
+    */
+    static async getDiscountAmount({ codeId, userId, shopId, products }) {
+
+
+        const foundDiscount = await checkDiscountExists({
+            discountModel,
+            filter: {
+                discount_code: codeId,
+                discount_shopId: convertToObjectIdMongodb(shopId) // convert string into objectid
+            }
+        })
+        if (!foundDiscount) throw new NotFoundError(`Discount doesn't not exists!`)
+
+        const {
+            discount_is_active,
+            discount_max_uses,
+            discount_start_date,
+            discount_end_date,
+            discount_min_order_value,
+            discount_max_user_per_user,
+            discount_users_used
+        } = foundDiscount
+
+        if (!discount_is_active) throw new NotFoundError(`Discount expired!`)
+        if (!discount_max_uses) throw new NotFoundError(`discount are out!`)
+
+        if (new Date() < new Date(discount_start_date) || new Date() > new Date(discount_end_date)) {
+            throw new NotFoundError('discount ecode has expired!')
+        }
+        // check xem co1 xet gia tri toi thieu hay khong
+        let totalOrder = 0
+        if (discount_min_order_value > 0) {
+            //get total
+            totalOrder = products.reduce((acc, product) => {
+                return acc + (product.quantity * product.price)
+            }, 0)
+
+            if (totalOrder < discount_min_order_value) {
+                throw new NotFoundError(`discount require a minium order value of ${discount_min_order_value}`)
+
+            }
+
+            if (discount_max_user_per_user > 0) {
+                const usesUserDiscount = discount_users_used.find(use => use.userId === userId)
+                if (usesUserDiscount) {
+                    //...
+                }
+            }
+
+            //check xem discount nay la fixed_amount - percentage
+            const amount = discount_type === 'fixe_amount' ? discount_value : totalOrder * (discount_value / 100)
+            return {
+                totalOrder,
+                discount: amount,
+                totalPrice: totalOrder - amount
+            }
+        }
+    }
 }
