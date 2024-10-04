@@ -7,6 +7,7 @@ const { findAllProducts } = require("../models/repository/product.repo");
 const { product } = require("../models/product.model");
 const { findAllDiscountCodesUnSelect, checkDiscountExists } = require("../models/repository/discount.repo");
 const { filter } = require("lodash");
+const discountModel = require("../models/discount.model");
 /*
     Discount Services
     1 - Generate discount Code [Shop | Admin]
@@ -218,4 +219,53 @@ class DiscountService {
             }
         }
     }
+
+
+    static async deleteDiscountCode({ shopId, codeId }) {
+        const foundDiscount = '';
+        if (foundDiscount) {
+            // deleted
+        }
+
+        const deleted = await discountModel.findOneAndDelete({
+            discount_code: codeId,
+            discount_shopId: ConvolverNode(shopId)
+
+        })
+        return deleted
+    }
+
+    static async cancelDiscountCode({ codeId, shopId, userId }) {
+        const foundDiscount = await checkDiscountExists({
+            model: discountModel,
+            filter: {
+                discount_code: codeId,
+                discount_shopId: convertToObjectIdMongodb(shopId)
+
+            }
+        })
+
+        /*
+            Cancel Discount Code ()
+        */
+
+        if (!foundDiscount) {
+            throw new NotFoundError("discount not exists!")
+        }
+
+        const result = await discountModel.findByIdAndUpdate(foundDiscount._id, {
+            $pull: {
+                discount_users_used: userId,
+
+            },
+            $inc: {
+                discount_max_uses: 1,
+                discount_uses_count: -1
+            }
+        })
+        return result
+    }
 }
+
+module.exports = DiscountService
+
