@@ -6,8 +6,6 @@ const { convertToObjectIdMongodb } = require("../utils");
 const { findAllProducts } = require("../models/repository/product.repo");
 const { product } = require("../models/product.model");
 const { findAllDiscountCodesUnSelect, checkDiscountExists } = require("../models/repository/discount.repo");
-const { filter } = require("lodash");
-const discountModel = require("../models/discount.model");
 /*
     Discount Services
     1 - Generate discount Code [Shop | Admin]
@@ -29,7 +27,7 @@ class DiscountService {
         }
 
         if (new Date(start_date) >= new Date(end_date)) {
-            throw new BadRequestError('Start date must be bbefore end_date')
+            throw new BadRequestError('Start date must be before end_date')
         }
         // create index for discount code
         const foundDiscount = await discountModel.findOne({
@@ -81,15 +79,15 @@ class DiscountService {
             discount_shopId: convertToObjectIdMongodb(shopId) // convert string into objectid
         }).lean()
 
-        if (!foundDiscount || foundDiscount.discount_is_active) {
+        if (!foundDiscount || !foundDiscount.discount_is_active) {
             throw new NotFoundError('discount not exists!')
         }
 
-        const { discount_applies_to, discount_product_ids } = foundDiscount
+        const { discount_apply_to, discount_product_ids } = foundDiscount
 
         let products
 
-        if (discount_applies_to === 'all') {
+        if (discount_apply_to === 'all') {
             products = await findAllProducts({
                 filter: {
                     product_shop: convertToObjectIdMongodb(shopId),
@@ -104,11 +102,12 @@ class DiscountService {
         }
 
 
-        if (discount_applies_to === 'specific') {
-            //get the products ids
+        if (discount_apply_to === 'specific') {
+            console.log(typeof discount_product_ids)
+            //get the products idsid
             products = await findAllProducts({
                 filter: {
-                    _id: { $in: discount_product_ids },
+                    _id: { $in: discount_product_ids[0] },
                     isPublish: true
                 },
                 limit: +limit,
@@ -166,7 +165,7 @@ class DiscountService {
 
 
         const foundDiscount = await checkDiscountExists({
-            discountModel,
+            model: discount,
             filter: {
                 discount_code: codeId,
                 discount_shopId: convertToObjectIdMongodb(shopId) // convert string into objectid
@@ -181,7 +180,9 @@ class DiscountService {
             discount_end_date,
             discount_min_order_value,
             discount_max_user_per_user,
-            discount_users_used
+            discount_users_used,
+            discount_type,
+            discount_value
         } = foundDiscount
 
         if (!discount_is_active) throw new NotFoundError(`Discount expired!`)
