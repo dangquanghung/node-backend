@@ -1,7 +1,7 @@
 "use strict";
 
 const { BadRequestError, NotFoundError } = require("../core/error.response");
-const discount = require("../models/discount.model");
+const discountModel = require("../models/discount.model");
 const { convertToObjectIdMongodb } = require("../utils");
 const { findAllProducts } = require("../models/repository/product.repo");
 const { product } = require("../models/product.model");
@@ -135,7 +135,7 @@ class DiscountService {
                 discount_is_active: true
             },
             unSelect: ['__v', 'discount_shopId'],
-            model: discount
+            model: discountModel
         })
 
         return discounts
@@ -165,7 +165,7 @@ class DiscountService {
 
 
         const foundDiscount = await checkDiscountExists({
-            model: discount,
+            model: discountModel,
             filter: {
                 discount_code: codeId,
                 discount_shopId: convertToObjectIdMongodb(shopId) // convert string into objectid
@@ -212,7 +212,7 @@ class DiscountService {
             }
 
             //check xem discount nay la fixed_amount - percentage
-            const amount = discount_type === 'fixe_amount' ? discount_value : totalOrder * (discount_value / 100)
+            const amount = discount_type === 'fixed_amount' ? discount_value : totalOrder * (discount_value / 100)
             return {
                 totalOrder,
                 discount: amount,
