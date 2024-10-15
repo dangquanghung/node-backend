@@ -1,53 +1,61 @@
-'use strict'
+"use strict";
 
-const { unGetSelectData, getSelectData } = require("../../utils")
+const { unGetSelectData, getSelectData } = require("../../utils");
 
 const localeConfig = { locale: "simple" };
 
+const findAllDiscountCodesUnSelect = async ({
+  limit = 50,
+  page = 1,
+  sort = "ctime",
+  filter,
+  unSelect,
+  model,
+}) => {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
-const findAllDiscountCodesUnSelect = async ({ limit = 50, page = 1,
-    sort = 'ctime', filter, unSelect, model
-}
-) => {
-    const skip = (page - 1) * limit;
-    const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  const documents = await model
+    .find(filter)
+    .collation(localeConfig)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(unGetSelectData(unSelect))
+    .lean();
 
-    const documents = await model
-        .find(filter)
-        .collation(localeConfig)
-        .sort(sortBy)
-        .skip(skip)
-        .limit(limit)
-        .select(unGetSelectData(unSelect))
-        .lean();
+  return documents;
+};
 
-    return documents
-}
+const findAllDiscountCodesSelect = async ({
+  limit = 50,
+  page = 1,
+  sort = "ctime",
+  filter,
+  select,
+  model,
+}) => {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
 
-const findAllDiscountCodesSelect = async ({ limit = 50, page = 1,
-    sort = 'ctime', filter, select, model }) => {
-    const skip = (page - 1) * limit;
-    const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  const documents = await model
+    .find(filter)
+    .collation(localeConfig)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(getSelectData(select))
+    .lean();
 
-    const documents = await model
-        .find(filter)
-        .collation(localeConfig)
-        .sort(sortBy)
-        .skip(skip)
-        .limit(limit)
-        .select(getSelectData(select))
-        .lean();
+  return documents;
+};
 
-    return documents
-}
-
-
-const checkDiscountExists = async ({model, filter}) => {
-    return await model.findOne(filter).lean()
-}
+const checkDiscountExists = async ({ model, filter }) => {
+  return await model.findOne(filter).lean();
+};
 
 module.exports = {
-    findAllDiscountCodesUnSelect,
-    findAllDiscountCodesSelect,
-    checkDiscountExists
-}
+  findAllDiscountCodesUnSelect,
+  findAllDiscountCodesSelect,
+  checkDiscountExists,
+};
