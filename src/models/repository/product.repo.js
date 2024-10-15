@@ -2,7 +2,7 @@
 
 const { product } = require("../../models/product.model");
 const { Types } = require("mongoose");
-const { getSelectData, unGetSelectData } = require("../../utils");
+const { getSelectData, unGetSelectData, convertToObjectIdMongodb } = require("../../utils");
 
 const localeConfig = { locale: "simple" };
 
@@ -122,6 +122,12 @@ const queryProduct = async ({ query, limit, skip }) => {
     .lean();
 };
 
+
+const getProductById = async (productId) => {
+  return await product.findOne({ _id: convertToObjectIdMongodb(productId) })
+  .collation(localeConfig).lean()
+}
+
 module.exports = {
   findAllDraftForShop,
   publishProductByShop,
@@ -131,4 +137,5 @@ module.exports = {
   findAllProducts,
   findProduct,
   updateProductById,
+  getProductById
 };

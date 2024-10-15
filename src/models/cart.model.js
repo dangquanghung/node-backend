@@ -1,11 +1,11 @@
 "use strict";
 
-const { model, Scheme } = require("mongoose");
+const { model, Schema} = require("mongoose");
 
 const DOCUMENT_NAME = "Cart";
 const COLLECTION_NAME = "Carts";
 
-const cartSchema = new Scheme(
+const cartSchema = new Schema(
   {
     cart_state: {
       type: String,
@@ -37,7 +37,7 @@ const cartSchema = new Scheme(
   },
   {
     collection: COLLECTION_NAME,
-    timeseries: {
+    timestamps: {
       createdAt: "createdOn",
       updatedAt: "modifiedOn",
     },
