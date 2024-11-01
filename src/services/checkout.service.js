@@ -66,7 +66,7 @@ class CheckoutService {
 
             const checkProductServer = await checkProductByServer(item_products)
             console.log(`checkProductServer::`, checkProductByServer)
-            if (!checkProductByServer[0]) throw new BadRequestError('order wrong!!!')
+            if (!checkProductByServer.length) throw new BadRequestError('order wrong!!!')
 
             const checkoutPrice = checkProductServer.reduce((acc, product) => {
                 return acc + (product.quantity * product.price)
