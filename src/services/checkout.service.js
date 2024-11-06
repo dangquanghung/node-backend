@@ -4,6 +4,7 @@ const { NotFoundError, BadRequestError } = require("../core/error.response")
 const { findCartById } = require("../models/repository/cart.repo")
 const { checkProductByServer } = require("../models/repository/product.repo")
 const { getDiscountAmount } = require("../services/discount.service")
+const { acquireLock, releaselock } = require("./redis.service")
 
 class CheckoutService {
     // login and without login
@@ -118,6 +119,47 @@ class CheckoutService {
 
     }
 
+    // order
+
+    static async orderByUser({
+        shop_order_ids,
+        cartId,
+        uerId,
+        user_address = {},
+        user_payment = {}
+
+    }) {
+        const { shop_order_ids_new, checkout_order } = await CheckoutService.checkoutReview({
+            cartId,
+            userId,
+            shop_order_ids
+        })
+
+        // check lai mot lan nua xem vuot ton ko hay khong
+        // get new array Products
+
+        const products = shop_order_ids_new.flatMap(order => order.item_products)
+        console.log(`[1]:`, products)
+        const acquireProduct = []
+        for (let index = 0; index < products.length; index++) {
+            const { productId, quantity } = products[index]
+            const keyLock = await acquireLock(productId, quantity, cartId)
+            acquireProduct.push(keyLock ? true : false)
+            if (keyLock) {
+                await releaselock(keyLock)
+            }
+        }
+
+
+        // check lai if co mot san pham het hang trong kho
+
+        if(acquireProduct.includes(false)){
+            throw new BadRequestError('mot so san pham da duoc cap nhat, vui long quay lai gio hang...')
+
+        }
+        const newOrder = ''
+    }
+
 }
 
-module.exports = CheckoutService
+module.exports = CheckoutService    
