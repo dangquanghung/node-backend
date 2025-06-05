@@ -1,6 +1,6 @@
 'use strict';
 
-const { createComment } = require('../services/comment.service');
+const { createComment, getCommentsByParentId } = require('../services/comment.service');
 const { SuccessResponse } = require("../core/success.response");
 
 class CommentController {
@@ -14,7 +14,7 @@ class CommentController {
     getCommentsByParentId = async (req, res, next) => {
         new SuccessResponse({
             message: 'get comments successfully',
-            metadata: await this.getCommentsByParentId(req.query)
+            metadata: await getCommentsByParentId(req.query)
         }).send(res);
     }
 }

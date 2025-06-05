@@ -93,7 +93,7 @@ class CommentService {
 
         const comments = await Comment.find({
             comment_productId: convertToObjectIdMongodb(productId),
-            comment_parentId: convertToObjectIdMongodb(parentCommentId)
+            comment_parentId: null
         })
             .select({
                 comment_left: 1,
