@@ -127,7 +127,7 @@ class CommentService {
         // xoa tat ca commentId con
         await Comment.deleteMany({
             comment_productId: convertToObjectIdMongodb(productId),
-            comment_content: { $gte: leftValue, $lte: rightValue },
+            comment_left: { $gte: leftValue, $lte: rightValue },
 
         })
 
