@@ -2,11 +2,11 @@ const amqp = require('amqplib')
 const messages = 'hello, RabbitMQ for HungDQ!'
 
 
-const log = console.log
+// const log = console.log
 
-console.log = function () {
-    log.apply(console, [new Date()].concat(arguments));
-}
+// console.log = function () {
+//     log.apply(console, [new Date()].concat(arguments));
+// }
 
 const runProducer = async () => {
     try {
